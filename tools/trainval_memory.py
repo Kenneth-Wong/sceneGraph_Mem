@@ -7,30 +7,13 @@ from model.train_val import get_training_roidb
 from model.train_val_memory import train_net
 from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
 from roi_data_layer.roidb import prepare_roidb
-import nets.attend_memory as attend_memory
-import nets.base_memory as base_memory
 import nets.ISGG as ISGG
 import nets.memory_ISGG as memory_ISGG
-import nets.memory_ISGG_v2 as memory_ISGG_v2
-import nets.alt_memory_ISGG as alt_memory_ISGG
-import nets.attend_memory_ISGG as attend_memory_ISGG
-import nets.memory_ISGG_no_relmem as memory_ISGG_no_relmem
-import nets.memory_ISGG_no_relmem_v2 as memory_ISGG_no_relmem_v2
-import nets.memory_ISGG_no_objmem as memory_ISGG_no_objmem
-import nets.attend_ISGG_iscbox as attend_ISGG_iscbox
-import nets.ISGG_CBAM_iscbox as ISGG_CBAM_iscbox
-import nets.ISGG_CBAM_v2 as ISGG_CBAM_v2
-import nets.ISGG_CBAM_v3 as ISGG_CBAM_v3
-import nets.ISGG_CBAM_v2_iscbox as ISGG_CBAM_v2_iscbox
-import nets.ISGG_CBAM_v2_relmix as ISGG_CBAM_v2_relmix
 import nets.ISGG_iscbox as ISGG_iscbox
 import nets.ISGG_relmix as ISGG_relmix
 import nets.memory_ISGG_relmix as memory_ISGG_relmix
 import nets.memory_ISGG_iscbox as memory_ISGG_iscbox
-import nets.memory_ISGG_relmix_v2 as memory_ISGG_relmix_v2
 import nets.attend_memory_ISGG_relmix as attend_memory_ISGG_relmix
-import nets.ISGG_union_sub_isc as ISGG_union_sub_isc
-import nets.ISGG_isc_pl_union_sub_isc as ISGG_isc_pl_union_sub_isc
 from datasets.factory import get_imdb, get_vg_imdb
 import datasets.imdb
 import argparse
@@ -74,12 +57,9 @@ def parse_args():
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
     parser.add_argument('--net_arch', dest='net_arch',
-                        help='BM, ISGG, BM_ISGG, alt_BM_ISGG, attend_BM_ISGG, attend_ISGG_iscbox, ISGG_CBAM_iscbox, '
-                             'ISGG_iscbox, ISGG_relmix, memory_ISGG_relmix, attend_memory_ISGG_relmix, ISGG_CBAM_v2,'
-                             'ISGG_CBAM_v2_iscbox, ISGG_CBAM_v2_relmix, memory_ISGG_no_relmem, memory_ISGG_no_objmem,'
-                             'BM_ISGG_v2, memory_ISGG_no_relmem_v2, memory_ISGG_relmix_v2, ISGG_CBAM_v3, ISGG_union_sub_isc,'
-                             'ISGG_isc_pl_union_sub_isc',
-                        default='ISGG_union_sub_isc', type=str)
+                        help='ISGG, BM_ISGG,'
+                             'ISGG_iscbox, ISGG_relmix, memory_ISGG_relmix, attend_memory_ISGG_relmix,'
+                             'memory_ISGG_iscbox,', type=str)
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=None,
                         nargs=argparse.REMAINDER)
@@ -138,52 +118,20 @@ if __name__ == '__main__':
     print('Loaded imdb `{:s}` for validating'.format(args.imdbval_name))
     print('{:d} validation roidb entries'.format(len(valroidb)))
 
-    if args.net_arch == 'BM':
-        arch = base_memory
-    elif args.net_arch == 'ISGG':
+    if args.net_arch == 'ISGG':
         arch = ISGG
     elif args.net_arch == 'BM_ISGG':
         arch = memory_ISGG
-    elif args.net_arch == 'BM_ISGG_v2':
-        arch = memory_ISGG_v2
-    elif args.net_arch == 'alt_BM_ISGG':
-        arch = alt_memory_ISGG
-    elif args.net_arch == 'attend_BM_ISGG':
-        arch = attend_memory_ISGG
-    elif args.net_arch == 'attend_ISGG_iscbox':
-        arch = attend_ISGG_iscbox
-    elif args.net_arch == 'ISGG_CBAM_iscbox':
-        arch = ISGG_CBAM_iscbox
-    elif args.net_arch == 'ISGG_CBAM_v2':
-        arch = ISGG_CBAM_v2
-    elif args.net_arch == 'ISGG_CBAM_v3':
-        arch = ISGG_CBAM_v3
-    elif args.net_arch == 'ISGG_CBAM_v2_iscbox':
-        arch = ISGG_CBAM_v2_iscbox
-    elif args.net_arch == 'ISGG_CBAM_v2_relmix':
-        arch = ISGG_CBAM_v2_relmix
     elif args.net_arch == 'ISGG_iscbox':
         arch = ISGG_iscbox
     elif args.net_arch == 'ISGG_relmix':
         arch = ISGG_relmix
-    elif args.net_arch == 'memory_ISGG_iscbox':
-        arch = memory_ISGG_iscbox
     elif args.net_arch == 'memory_ISGG_relmix':
         arch = memory_ISGG_relmix
-    elif args.net_arch == 'memory_ISGG_relmix_v2':
-        arch = memory_ISGG_relmix_v2
+    elif args.net_arch == 'memory_ISGG_iscbox':
+        arch = memory_ISGG_iscbox
     elif args.net_arch == 'attend_memory_ISGG_relmix':
         arch = attend_memory_ISGG_relmix
-    elif args.net_arch == 'memory_ISGG_no_relmem':
-        arch = memory_ISGG_no_relmem
-    elif args.net_arch == 'memory_ISGG_no_relmem_v2':
-        arch = memory_ISGG_no_relmem_v2
-    elif args.net_arch == 'memory_ISGG_no_objmem':
-        arch = memory_ISGG_no_objmem
-    elif args.net_arch == 'ISGG_union_sub_isc':
-        arch = ISGG_union_sub_isc
-    elif args.net_arch == 'ISGG_isc_pl_union_sub_isc':
-        arch = ISGG_isc_pl_union_sub_isc
     else:
         raise NotImplementedError
 
@@ -198,17 +146,18 @@ if __name__ == '__main__':
     # load network
     if args.net_base == 'vgg16':
         net = arch.vgg16()
+    else:
+        raise NotImplementedError
+    """
     elif args.net_base == 'res50':
         net = arch.resnetv1(num_layers=50)
-    elif args.net_base == 'res101':
+    #elif args.net_base == 'res101':
         net = arch.resnetv1(num_layers=101)
     elif args.net_base == 'res152':
         net = arch.resnetv1(num_layers=152)
     elif args.net_base == 'mobile':
         net = arch.mobilenetv1()
-    else:
-        raise NotImplementedError
-
+    """
     train_net(net, imdb, roidb, valimdb, valroidb, output_dir, tb_dir,
               pretrained_model=args.weight,
               max_iters=args.max_iters)
